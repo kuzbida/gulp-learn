@@ -37,6 +37,30 @@ gulp.task('less-watchers', function () {
     gulp.watch(config.less, ['styles']);
 });
 
+gulp.task('wiredep', function () {
+    log('Inject bower css&js and app js');
+    var options = config.getWiredepDefaultOptions();
+    var wiredep = require('wiredep').stream;
+
+    return gulp
+        .src(config.index)
+        .pipe(wiredep(options))
+        .pipe($.inject(gulp.src(config.js)))
+        .pipe(gulp.dest(config.client));
+});
+
+gulp.task('inject', ['wiredep', 'styles'], function () {
+    log('Inject app css');
+
+    var options = config.getWiredepDefaultOptions();
+    var wiredep = require('wiredep').stream;
+
+    return gulp
+        .src(config.index)
+        .pipe(wiredep(options))
+        .pipe($.inject(gulp.src(config.css)))
+        .pipe(gulp.dest(config.client));
+});
 ///////////////////
 
 function clean(path, cb){
