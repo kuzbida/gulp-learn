@@ -1,5 +1,6 @@
 module.exports = function () {
     var client = './src/client/',
+        server = './src/server/'
         clientApp = client + 'app/',
         temp = './.tmp/';
 
@@ -24,6 +25,13 @@ module.exports = function () {
             ignorePath: '../..'
         },
         getWiredepDefaultOptions: getWiredepDefaultOptions
+
+
+        /*Node settings*/
+        ,
+        server: server,
+        defaultPort: 7203,
+        nodeServer: './src/server/app.js'
     };
 
     function getWiredepDefaultOptions() {
