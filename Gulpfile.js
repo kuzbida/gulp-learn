@@ -64,7 +64,7 @@ gulp.task('inject', ['wiredep', 'styles'], function () {
         .pipe(gulp.dest(config.client));
 });
 
-gulp.task('serve-dev', ['inject'], function(){
+gulp.task('serve-dev', ['inject'], function () {
     var isDev = true;
 
     var nodeOptions = {
@@ -81,6 +81,10 @@ gulp.task('serve-dev', ['inject'], function(){
         .on('restart', function (ev) {
             log('*** nodemon restarted');
             log('files changed on restart: \n' + ev);
+            setTimeout(function () {
+                browserSync.notify('reloading now....');
+                browserSync.reload({stream: false});
+            }, config.browserReloadDelay)
         })
         .on('start', function () {
             log('*** nodemon started');
@@ -94,19 +98,32 @@ gulp.task('serve-dev', ['inject'], function(){
         });
 });
 ///////////////////
+function changeEvent(ev) {
+    var scrPattern = new RegExp('/.*(?=/' + config.client + ')/');
+    log('File ' + ev.path.replace(scrPattern, '') + ' ' + ev.type);
+}
 
-function startBrowserSync(){
+function startBrowserSync() {
 
-    if(browserSync.active){
+    if (args.nosync || browserSync.active) {
         return;
     }
 
     log('Starting browser-sync on port' + port);
 
+    gulp.watch([config.less], ['styles'])
+        .on('change', function (ev) {
+            changeEvent(ev);
+        });
+
     var options = {
         proxy: 'localhost:' + port,
         port: 3000,
-        files: [config.client + '**/*.*'],
+        files: [
+            config.client + '**/*.*',
+            '!' + config.less,
+            config.temp + '**/*.css'
+        ],
         ghostMode: {
             clicks: true,
             location: false,
@@ -124,7 +141,7 @@ function startBrowserSync(){
     browserSync(options);
 }
 
-function clean(path, cb){
+function clean(path, cb) {
     log('Cleaning ' + path);
     return del(path, cb);
 }

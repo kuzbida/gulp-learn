@@ -1,6 +1,6 @@
 module.exports = function () {
     var client = './src/client/',
-        server = './src/server/'
+        server = './src/server/',
         clientApp = client + 'app/',
         temp = './.tmp/';
 
@@ -31,7 +31,8 @@ module.exports = function () {
         ,
         server: server,
         defaultPort: 7203,
-        nodeServer: './src/server/app.js'
+        nodeServer: './src/server/app.js',
+        browserReloadDelay: 1000
     };
 
     function getWiredepDefaultOptions() {
