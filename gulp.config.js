@@ -6,6 +6,7 @@ module.exports = function () {
 
     var config = {
         temp: temp,
+        build: './build/',
         client: client,
         index: client + 'index.html',
         js: [
@@ -19,6 +20,8 @@ module.exports = function () {
         ],
         css: temp + 'styles.css',
         less: client + 'styles/styles.less',
+        fonts: './bower_components/font-awesome/fonts/**/*.*',
+        images: client + 'images/**/*.*',
         bower: {
             json: require('./bower.json'),
             directory: './bower_components/',

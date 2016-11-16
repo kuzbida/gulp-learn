@@ -7,6 +7,26 @@ var gulp = require('gulp'),
 var $ = require('gulp-load-plugins')({lazy: true}),
     del = require('del');
 
+gulp.task('help', $.taskListing);
+gulp.task('default', ['help']);
+
+gulp.task('fonts', ['clean-fonts'], function () {
+    log('Copying fonts____');
+
+    return gulp
+        .src(config.fonts)
+        .pipe(gulp.dest(config.build + 'fonts'))
+});
+
+gulp.task('images', ['clean-images'], function () {
+    log('Copying and compressing images____');
+
+    return gulp
+        .src(config.images)
+        .pipe($.imagemin({optimizationLevel: 4}))
+        .pipe(gulp.dest(config.build + 'images'))
+});
+
 
 gulp.task('validateJs', function () {
     log('Analyze js source with JSHint and JSCS');
@@ -30,9 +50,22 @@ gulp.task('styles', ['clean-styles'], function () {
         .pipe(gulp.dest(config.temp));
 });
 
+gulp.task('clean', function (cb) {
+    var delConfig = [].concat(config.build, config.temp);
+    log('Cleaning: '+ $.util.colors.red(delConfig));
+    return del(delConfig, cb)
+});
+
 gulp.task('clean-styles', function (cb) {
-    var files = config.temp + '**/*.css';
-    return clean(files, cb);
+    return clean(config.temp + '**/*.css', cb);
+});
+
+gulp.task('clean-fonts', function (cb) {
+    return clean(config.build + 'fonts/**/*.*', cb);
+});
+
+gulp.task('clean-images', function (cb) {
+    return clean(config.build + 'images/**/*.*', cb);
 });
 
 gulp.task('less-watchers', function () {
