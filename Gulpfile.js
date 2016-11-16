@@ -52,7 +52,7 @@ gulp.task('styles', ['clean-styles'], function () {
 
 gulp.task('clean', function (cb) {
     var delConfig = [].concat(config.build, config.temp);
-    log('Cleaning: '+ $.util.colors.red(delConfig));
+    log('Cleaning: ' + $.util.colors.red(delConfig));
     return del(delConfig, cb)
 });
 
@@ -66,6 +66,15 @@ gulp.task('clean-fonts', function (cb) {
 
 gulp.task('clean-images', function (cb) {
     return clean(config.build + 'images/**/*.*', cb);
+});
+
+gulp.task('clean-code', function (cb) {
+    var files = [].concat(
+        config.temp + '**/*.js',
+        config.build + '**/*.html',
+        config.build + 'js/**/*.js'
+    );
+    return clean(files, cb);
 });
 
 gulp.task('less-watchers', function () {
@@ -95,6 +104,19 @@ gulp.task('inject', ['wiredep', 'styles'], function () {
         .pipe(wiredep(options))
         .pipe($.inject(gulp.src(config.css)))
         .pipe(gulp.dest(config.client));
+});
+
+gulp.task('templatecache', ['clean-code'], function(){
+    log('Creating AngularJS $templateCache');
+
+    return gulp
+        .src(config.htmltemplates)
+        .pipe($.minifyHtml({empty: true}))
+        .pipe($.angularTemplatecache(
+            config.templateCache.file,
+            config.templateCache.options
+        ))
+        .pipe(gulp.dest(config.temp));
 });
 
 gulp.task('serve-dev', ['inject'], function () {
