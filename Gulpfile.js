@@ -106,7 +106,7 @@ gulp.task('inject', ['wiredep', 'styles'], function () {
         .pipe(gulp.dest(config.client));
 });
 
-gulp.task('templatecache', ['clean-code'], function(){
+gulp.task('templatecache', ['clean-code'], function () {
     log('Creating AngularJS $templateCache');
 
     return gulp
@@ -117,6 +117,24 @@ gulp.task('templatecache', ['clean-code'], function(){
             config.templateCache.options
         ))
         .pipe(gulp.dest(config.temp));
+});
+
+gulp.task('optimize', ['inject'], function () {
+    log('Optimizing the js, css, html');
+
+    var templateCache = config.temp + config.templateCache.file,
+        assets = $.useref.assets({searchPath: './'});
+
+    return gulp
+        .src(config.index)
+        .pipe($.plumber())
+        .pipe($.inject(gulp.src(templateCache, {read: false}, {
+            starttag: '<!-- inject:templates:js -->'
+        })))
+        .pipe(assets)
+        .pipe(assets.restore())
+        .pipe($.useref())
+        .pipe(gulp.dest(config.build));
 });
 
 gulp.task('serve-dev', ['inject'], function () {
