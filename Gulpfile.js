@@ -103,7 +103,7 @@ gulp.task('inject', ['wiredep', 'styles'], function () {
         .src(config.index)
         .pipe(wiredep(options))
         .pipe($.inject(gulp.src(config.css)))
-        .pipe(gulp.dest(config.client));
+        .pipe(gulp.dest(config.build));
 });
 
 gulp.task('templatecache', ['clean-code'], function () {
