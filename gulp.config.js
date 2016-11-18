@@ -52,7 +52,7 @@ module.exports = function () {
     };
 
     function getWiredepDefaultOptions() {
-        var options = {
+        return {
             bowerJson: config.bower.json,
             directory: config.bower.directory,
             ignorePath: config.bower.ignorePath
