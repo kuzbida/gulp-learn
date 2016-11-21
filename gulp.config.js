@@ -18,6 +18,7 @@ module.exports = function () {
             client + '**/*.js',
             '*.js'
         ],
+        html: clientApp + '**/*.html',
         htmltemplates: client + '**/*.html',
         css: temp + 'styles.css',
         less: client + 'styles/styles.less',

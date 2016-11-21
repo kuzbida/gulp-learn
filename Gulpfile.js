@@ -93,7 +93,7 @@ gulp.task('wiredep', function () {
         .pipe(gulp.dest(config.client));
 });
 
-gulp.task('inject', ['wiredep', 'styles'], function () {
+gulp.task('inject', ['wiredep', 'styles', 'templatecache'], function () {
     log('Inject app css');
 
     var options = config.getWiredepDefaultOptions();
@@ -138,7 +138,14 @@ gulp.task('optimize', ['inject'], function () {
 });
 
 gulp.task('serve-dev', ['inject'], function () {
-    var isDev = true;
+    serve(true);
+});
+
+gulp.task('serve-build', ['optimize'], function () {
+    serve(false);
+});
+///////////////////
+function serve(isDev) {
 
     var nodeOptions = {
         script: config.nodeServer,
@@ -169,14 +176,15 @@ gulp.task('serve-dev', ['inject'], function () {
         .on('exit', function () {
             log('*** nodemon exit');
         });
-});
-///////////////////
+}
+
+
 function changeEvent(ev) {
     var scrPattern = new RegExp('/.*(?=/' + config.client + ')/');
     log('File ' + ev.path.replace(scrPattern, '') + ' ' + ev.type);
 }
 
-function startBrowserSync() {
+function startBrowserSync(isDev) {
 
     if (args.nosync || browserSync.active) {
         return;
@@ -184,19 +192,32 @@ function startBrowserSync() {
 
     log('Starting browser-sync on port' + port);
 
-    gulp.watch([config.less], ['styles'])
-        .on('change', function (ev) {
-            changeEvent(ev);
-        });
+    if(isDev){
+        gulp.watch([config.less], ['styles'])
+            .on('change', function (ev) {
+                changeEvent(ev);
+            });
+    } else {
+        gulp.watch([config.less], ['styles'])
+            .on('change', function (ev) {
+                changeEvent(ev);
+            });
+        gulp.watch([config.less, config.js, config.html], ['optimize', browserSync.reload])
+            .on('change', function (ev) {
+                changeEvent(ev);
+            });
+
+    }
+
 
     var options = {
         proxy: 'localhost:' + port,
         port: 3000,
-        files: [
+        files: isDev ? [
             config.client + '**/*.*',
             '!' + config.less,
             config.temp + '**/*.css'
-        ],
+        ] : [],
         ghostMode: {
             clicks: true,
             location: false,
