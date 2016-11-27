@@ -124,9 +124,9 @@ gulp.task('optimize', ['inject'], function () {
 
     var templateCache = config.temp + config.templateCache.file,
         assets = $.useref.assets({searchPath: './'}),
-        cssFilter = $.filter('**/*.css', { restore: true }),
-        jsLibFilter = $.filter('**/lib.js', { restore: true }),
-        jsAppFilter = $.filter('**/app.js', { restore: true });
+        cssFilter = $.filter('**/*.css', {restore: true}),
+        jsLibFilter = $.filter('**/' + config.optimized.lib, {restore: true}),
+        jsAppFilter = $.filter('**/' + config.optimized.app, {restore: true});
 
     return gulp
         .src(config.index)
@@ -145,8 +145,12 @@ gulp.task('optimize', ['inject'], function () {
         .pipe($.ngAnnotate())
         .pipe($.uglify())
         .pipe(jsAppFilter.restore)
+        .pipe($.rev())
         .pipe(assets.restore())
         .pipe($.useref())
+        .pipe($.revReplace())
+        .pipe(gulp.dest(config.build))
+        .pipe($.rev.manifest())
         .pipe(gulp.dest(config.build));
 });
 
@@ -156,6 +160,30 @@ gulp.task('serve-dev', ['inject'], function () {
 
 gulp.task('serve-build', ['optimize'], function () {
     serve(false);
+});
+
+gulp.task('bump', function () {
+    var msg = 'Bumping version',
+        type = args.type,
+        version = args.version,
+        options = {};
+
+    if (version) {
+        options.version = version;
+        msg += ' to ' + version;
+    } else {
+        options.type = type;
+        msg += 'for a type ' + type;
+    }
+
+    log(msg);
+
+    return gulp
+        .src(config.packages)
+        .pipe($.print())
+        .pipe($.bump(options))
+        .pipe(gulp.dest(config.root));
+
 });
 ///////////////////
 function serve(isDev) {
@@ -205,7 +233,7 @@ function startBrowserSync(isDev) {
 
     log('Starting browser-sync on port' + port);
 
-    if(isDev){
+    if (isDev) {
         gulp.watch([config.less], ['styles'])
             .on('change', function (ev) {
                 changeEvent(ev);

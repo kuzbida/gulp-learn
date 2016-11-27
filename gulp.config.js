@@ -2,9 +2,11 @@ module.exports = function () {
     var client = './src/client/',
         server = './src/server/',
         clientApp = client + 'app/',
-        temp = './.tmp/';
+        temp = './.tmp/',
+        root = './';
 
     var config = {
+        root: root,
         temp: temp,
         build: './build/',
         client: client,
@@ -29,11 +31,22 @@ module.exports = function () {
             directory: './bower_components/',
             ignorePath: '../..'
         },
-        getWiredepDefaultOptions: getWiredepDefaultOptions
 
+        packages: [
+            './package.json',
+            './bower.json'
+        ],
+        getWiredepDefaultOptions: getWiredepDefaultOptions,
+
+        /*
+        * Optimized files
+        * */
+        optimized: {
+            app: 'app.js',
+            lib: 'lib.js'
+        },
 
         /*Node settings*/
-        ,
         server: server,
         defaultPort: 7203,
         nodeServer: './src/server/app.js',
