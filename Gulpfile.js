@@ -28,7 +28,7 @@ gulp.task('images', ['clean-images'], function () {
 });
 
 
-gulp.task('validateJs', function () {
+gulp.task('vet', function () {
     log('Analyze js source with JSHint and JSCS');
 
     return gulp.src(config.alljs)
@@ -185,7 +185,34 @@ gulp.task('bump', function () {
         .pipe(gulp.dest(config.root));
 
 });
+
+gulp.task('test', ['vet', 'templatecache'], function () {
+    startTests(true, done);
+});
 ///////////////////
+function startTests(singleRun, done) {
+    var karma = require('karma').server,
+        excludedFiles = [],
+        serverSpecs = config.serverIntegrationSpec;
+
+    excludedFiles = serverSpecs;
+
+    karma.start({
+        config: __dirname + '/karma.config.js',
+        exclude: excludedFiles,
+        single: !!singleRun
+    }, karmaCompleted);
+
+    function karmaCompleted(karmaResult) {
+        log('Karma completed');
+
+        if (karmaResult === 1) {
+            done('karma: tests fail with code:' + karmaResult);
+        } else {
+            done();
+        }
+    }
+}
 function serve(isDev) {
 
     var nodeOptions = {

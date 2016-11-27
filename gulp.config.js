@@ -3,7 +3,10 @@ module.exports = function () {
         server = './src/server/',
         clientApp = client + 'app/',
         temp = './.tmp/',
-        root = './';
+        root = './',
+        report = './report/',
+        wiredep = require('wiredep'),
+        bowerFiles = wiredep({devDependencies: true})['js'];
 
     var config = {
         root: root,
@@ -62,8 +65,15 @@ module.exports = function () {
                 root: 'app/'
             }
 
-        }
+        },
+
+        /*KARMA CONFIGS*/
+        report: report,
+        serverIntegrationSpec: [client + 'tests/server-integration/**/*.spec.js'],
+        karma: getKarmaOptions()
     };
+
+    return config;
 
     function getWiredepDefaultOptions() {
         return {
@@ -73,5 +83,30 @@ module.exports = function () {
         }
     }
 
-    return config;
+    function getKarmaOptions() {
+        var options = {
+            files: [].concat(
+                bowerFiles,
+                config.specHelpers,
+                client + '**/*.module.js',
+                client + '**/*.js',
+                temp + config.templateCache.file,
+                config.serverIntegrationSpec
+            ),
+            exclude: [],
+            coverage: {
+                dir: report + 'coverage',
+                reporters: [
+                    {type: 'html', subdir: 'report-html'},
+                    {type: 'lcov', subdir: 'report-lcov'},
+                    {type: 'text-summary'}
+                ]
+            },
+            preprocessors: {}
+        };
+        options.preprocessors[clientApp + '**/!(*.spec)+(.js)'] = ['coverage'];
+
+        return options;
+
+    }
 };
