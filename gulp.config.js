@@ -53,10 +53,9 @@ module.exports = function () {
         server: server,
         defaultPort: 7203,
         nodeServer: './src/server/app.js',
-        browserReloadDelay: 1000
+        browserReloadDelay: 1000,
 
         /*Template cache settings*/
-        ,
         templateCache: {
             file: 'templates.js',
             options: {
@@ -69,18 +68,22 @@ module.exports = function () {
 
         /*KARMA CONFIGS*/
         report: report,
-        serverIntegrationSpec: [client + 'tests/server-integration/**/*.spec.js'],
-        karma: getKarmaOptions()
+        specHelpers: [client + 'test-helpers/*.js'],
+        serverIntegrationSpec: [client + 'tests/server-integration/**/*.spec.js']
     };
+
+    config.karma = getKarmaOptions();
 
     return config;
 
+
+    //////////////////////
     function getWiredepDefaultOptions() {
         return {
             bowerJson: config.bower.json,
             directory: config.bower.directory,
             ignorePath: config.bower.ignorePath
-        }
+        };
     }
 
     function getKarmaOptions() {
@@ -93,7 +96,7 @@ module.exports = function () {
                 temp + config.templateCache.file,
                 config.serverIntegrationSpec
             ),
-            exclude: [],
+            exclude: ['./node_modules/', './bower_components/'],
             coverage: {
                 dir: report + 'coverage',
                 reporters: [
@@ -107,6 +110,7 @@ module.exports = function () {
         options.preprocessors[clientApp + '**/!(*.spec)+(.js)'] = ['coverage'];
 
         return options;
-
     }
+
+
 };

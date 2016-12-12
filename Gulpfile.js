@@ -2,6 +2,7 @@ var gulp = require('gulp'),
     browserSync = require('browser-sync'),
     args = require('yargs').argv,
     config = require('./gulp.config')(),
+    //karmaConfig = require('./karma.config.js')(),
     port = config.defaultPort;
 
 var $ = require('gulp-load-plugins')({lazy: true}),
@@ -15,7 +16,7 @@ gulp.task('fonts', ['clean-fonts'], function () {
 
     return gulp
         .src(config.fonts)
-        .pipe(gulp.dest(config.build + 'fonts'))
+        .pipe(gulp.dest(config.build + 'fonts'));
 });
 
 gulp.task('images', ['clean-images'], function () {
@@ -24,7 +25,7 @@ gulp.task('images', ['clean-images'], function () {
     return gulp
         .src(config.images)
         .pipe($.imagemin({optimizationLevel: 4}))
-        .pipe(gulp.dest(config.build + 'images'))
+        .pipe(gulp.dest(config.build + 'images'));
 });
 
 
@@ -53,7 +54,7 @@ gulp.task('styles', ['clean-styles'], function () {
 gulp.task('clean', function (cb) {
     var delConfig = [].concat(config.build, config.temp);
     log('Cleaning: ' + $.util.colors.red(delConfig));
-    return del(delConfig, cb)
+    return del(delConfig, cb);
 });
 
 gulp.task('clean-styles', function (cb) {
@@ -186,22 +187,33 @@ gulp.task('bump', function () {
 
 });
 
-gulp.task('test', ['vet', 'templatecache'], function () {
+gulp.task('test', ['vet', 'templatecache'], function (done) {
     startTests(true, done);
 });
 ///////////////////
 function startTests(singleRun, done) {
-    var karma = require('karma').server,
-        excludedFiles = [],
+    var Server = require('karma').Server,
+        excludedFiles = ['./node_modules/'],
         serverSpecs = config.serverIntegrationSpec;
+
+    excludedFiles = [].concat(excludedFiles, serverSpecs);
+
+    //console.log('********* configs', karmaConfig);
+
+    var server = new Server({
+        configFile: __dirname + '\\karma.conf.js',
+        exclude: excludedFiles
+    }, karmaCompleted);
 
     excludedFiles = serverSpecs;
 
-    karma.start({
-        config: __dirname + '/karma.config.js',
-        exclude: excludedFiles,
-        single: !!singleRun
-    }, karmaCompleted);
+    //karma.start({
+    //    config: __dirname + '/karma.config.js',
+    //    exclude: excludedFiles,
+    //    single: !!singleRun
+    //}, karmaCompleted);
+
+    server.start();
 
     function karmaCompleted(karmaResult) {
         log('Karma completed');
@@ -232,7 +244,7 @@ function serve(isDev) {
             setTimeout(function () {
                 browserSync.notify('reloading now....');
                 browserSync.reload({stream: false});
-            }, config.browserReloadDelay)
+            }, config.browserReloadDelay);
         })
         .on('start', function () {
             log('*** nodemon started');
